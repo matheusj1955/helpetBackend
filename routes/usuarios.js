@@ -103,11 +103,22 @@ router.patch('/', (req, res, next) => {
         conn.query(
         'UPDATE usuarios SET nome = ?, email = ? WHERE id_usuario = ?',
             [req.body.nome, req.body.email, req.body.id_usuario],
-            (error, resultado, fields) =>{
+            (error, result, fields) =>{
              if(error) { return res.status(500).send({error: error})}
-                res.status(202).send({
-                    mensagem: 'Usuario alterado com sucesso'
-                });
+                    const response = {
+                    mensagem: 'Usuário atualizado com sucesso',
+                    usuarioAtualizado:{
+                    id_usuario: req.body.id_usuario,
+                    nome: req.body.nome,
+                    email: req.body.email,
+                 request: {
+                         tipo: 'GET',
+                         descricao: 'Retorna os detalhes de um usuarios específico',
+                         url: 'localhost:3000/usuarios/' + req.body.id_usuario
+                          }
+                    }
+                }
+                    return res.status(202).send(response);
                 }
          )
       });
@@ -120,14 +131,25 @@ router.delete('/', (req, res, next) => {
             conn.query(
             'DELETE FROM usuarios WHERE id_usuario = ?',
                 [req.body.id_usuario],
-                (error, resultado, fields) =>{
+                (error, result, fields) =>{
+                 conn.release();
                  if(error) { return res.status(500).send({error: error})}
-                    res.status(202).send({
-                        mensagem: 'Usuario removido com sucesso'
-                    });
+                 const response = {
+                    mensagem: 'Usuário removido com sucesso',
+                    request: {
+                        tipo: 'POST',
+                        descricao: 'Insere um produto',
+                        url: 'localhost:3000/usuarios',
+                        body:{
+                        nome: 'String',
+                        email: 'String'
+                        }
                     }
-             )
-          });
+                 }
+                 return res.status(202).send(response);
+            }
+         )
+    });
 });
 
 
