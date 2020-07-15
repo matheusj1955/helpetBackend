@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('C:\\Users\\MATHEUS J\\AndroidStudioProjects\\helpet\\api_helpet\\mysql.js').pool;
 //const mysql = require('../mysql.js').pool;
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+    //ERRO NA PARTE DE ALTERAR
+
 
 // RETORNA TODOS OS USUARIOS
 router.get('/', (req, res, next) => {
@@ -32,33 +37,37 @@ router.get('/', (req, res, next) => {
 });
 
 // INSERE UM NOVO USUARIO
-router.post('/', (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-        if(error) { return res.status(500).send({error: error})}
+router.post('/cadastro', (req, res, next) => {
+    mysql.getConnection((err, conn) => {
+        if(err) { return res.status(500).send({error: error})}
+        conn.query('SELECT * FROM usuarios WHERE email =?', [req.body.email], (error, results) => {
+            if(error) { return res.status(500).send({error: error})}
+            if(results.length > 0){
+                res.status(409).send({ mensagem: 'Usuário já cadastrado'})
+            } else{
+            bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
+            if(errBcrypt) { return res.status(500).send ({ error: errBcrypt})}
         conn.query(
-        'INSERT INTO usuarios (nome, email) VALUES (?,?)',
-        [req.body.nome, req.body.email],
-        (error, result, field) =>{
+        'INSERT INTO usuarios (nome, email, senha) VALUES (?,?,?)',
+        [req.body.nome, req.body.email, hash],
+        (error, results) =>{
                 conn.release(); // libera conexão
                     if(error) { return res.status(500).send({error: error})}
                     const response = {
-                        mensagem: 'Usuário inserido com sucesso',
-                        usuarioCriado:{
-                        id_usuario: result.id_usuario,
+                        mensagem: 'Usuário criado com sucesso',
+                        usuarioCriado: {
+                        id_usuario: results.insertId,
                         nome: req.body.nome,
                         email: req.body.email,
-                        request: {
-                                 tipo: 'GET',
-                                 descricao: 'Retorna todos os usuários',
-                                 url: 'localhost:3000/usuarios'
-                                 }
                         }
                     }
                 return res.status(201).send(response);
+                  })
+                });
             }
-        )
+        })
     });
-});
+})
 
 
 
@@ -151,6 +160,43 @@ router.delete('/', (req, res, next) => {
          )
     });
 });
+
+//Verifica Login
+router.post('/login', (req, res, next) => {
+    mysql.getConnection((error, conn) => {
+        if(error) { return res.status(500).send({error: error})}
+        const query = 'SELECT * FROM usuarios WHERE email =?';
+        conn.query(query, [req.body.email], (error, results, fields) => {
+            conn.release(); // libera conexão
+            if(error) { return res.status(500).send({error: error})}
+            if(results.length < 1){
+               return res.status(401).send({ mensagem: 'Email e/ou Senha inválido(s)'})
+            }
+            bcrypt.compare(req.body.senha, results[0].senha, (err, result) =>{
+                if(err){
+                   return res.status(401).send({ mensagem: 'Email e/ou Senha inválido(s)'})
+                }
+                if(result){
+                    const token = jwt.sign({
+                        id_usuario: results[0].id_usuario,
+                        nome: results[0].nome,
+                        email: results[0].email
+                    }, process.env.JWT_KEY,
+                    {
+                        expiresIn: "1h"
+                    });
+
+                    return res.status(200).send({
+                    mensagem: 'Login efetuado com sucesso',
+                    token: token
+                    });
+                }
+                return res.status(401).send({ mensagem: 'Email e/ou Senha inválido(s)'})
+            });
+        });
+    });
+})
+
 
 
 module.exports = router;

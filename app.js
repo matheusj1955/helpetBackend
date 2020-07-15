@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const rotaUsuarios = require('./routes/usuarios.js');
 const rotaPostagens = require('./routes/postagens.js');
 
+
 //informações de cabeçalio
 app.use((req, res, next) =>{
     res.header('Access-Control-Allow-Origin', '*'); //permissão para o controle de acesso (*=todos - se tivesse site seria ele)
@@ -23,6 +24,7 @@ app.use((req, res, next) =>{
 
 
 app.use(morgan('dev'));
+app.use('/uploads', express.static('uploads')); // nossa pasta está disponivel publicamente
 app.use(bodyParser.urlencoded({ extended: false})); // apenas dados simples
 app.use(bodyParser.json());// tipo de entrada json no body
 
