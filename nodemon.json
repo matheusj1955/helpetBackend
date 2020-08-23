@@ -4,6 +4,8 @@
     "MYSQL_PASSWORD" :  "root",
     "MYSQL_DATABASE": "helpet",
     "HOST" : "localhost",
-    "PORT" : 3000
+    "PORT" : 3000,
+
+    "JWT_KEY" : "segredo_acesso"
   }
 }

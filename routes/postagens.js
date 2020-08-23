@@ -1,49 +1,57 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const login = require('../middleware/login');
+// TEM Q POR PARADA DE LOGIN
+
+const PostagensController = require('../controllers/postagens-controller')
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, './uploads/');
+    },
+    filename: function(req, file, cb){
+        cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname);
+    }
+});
+
+
+//condição pra filtar qual tipo de imagem vai aceitar
+const fileFilter = (req, file, cb) =>{
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'){
+        cb(null, true);
+    } else{
+        cb(null, false);
+    }
+}
+
+
+// TAMAMHO MAXIMO DA IMAGEM
+const upload = multer({
+   storage: storage,
+   limits: {
+        fileSize: 1024 * 1024 * 5
+   },
+   fileFilter: fileFilter
+});
 
 // RETORNA TODOS AS POSTAGENS
-router.get('/', (req, res, next) => {
-    res.status(200).send({
-        mensagem: 'RETORNA TODAS AS POSTAGENS'
-    });
-});
+router.get('/', PostagensController.getPostagens);
 
-// INSERE UMA NOVA POSTAGEM
-router.post('/', (req, res, next) => {
+// CRIE UMA NOVA POSTAGEM
+router.post('/', upload.single('postagem_imagem'), login, PostagensController.postPostagens);
 
-    const post = {
-    id_usuario: req.body.id_usuario,
-    titulo: req.body.titulo
-    };
+// RETORNA OS DADOS DE UMA POSTAGEM
+router.get('/:id_postagem', PostagensController.getUmaPostagem);
 
-    res.status(201).send({
-        mensagem: 'CRIANDO POSTAGEM',
-        postCriado: post
-    });
-});
+// ALTERA UMA POSTAGEM// ALTERA UM USUARIO
+router.patch('/', upload.single('postagem_imagem'), login, PostagensController.patchAtulizaPostagem);
 
-// RETORNA OS DADOS DE UM POSTAGEM
-router.get('/:id_postagem', (req, res, next) => {
-    const id = req.params.id_postagem
-        res.status(200).send({
-            mensagem: 'INFORMAÇÕES DO POST'
-//            id_postagem: id
-        });
-});
+// DELETA UMA POSTAGEM
+router.delete('/',  PostagensController.deleteUmaPostagem);
 
-// ALTERA UMA POSTAGEM
-router.patch('/', (req, res, next) => {
-    res.status(201).send({
-        mensagem: 'EDITA POST'
-    });
-});
+router.post('/:id_postagem/imagem', upload.single('postagem_imagem'), PostagensController.postImagem);
 
-// DELTA UMA POSTAGEM
-router.delete('/', (req, res, next) => {
-    res.status(201).send({
-        mensagem: 'DELETA POST'
-    });
-});
-
+router.get('/:id_postagem/imagens', PostagensController.getImagens)
 
 module.exports = router;
