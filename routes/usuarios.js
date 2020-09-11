@@ -8,12 +8,8 @@ router.get('/', UsuariosController.getUsuarios);
 
 // INSERE UM NOVO USUARIO
 router.post('/cadastro', UsuariosController.postCriaUsuario);
-
-
-
 // RETORNA OS DADOS DE UM USUARIO
 router.get('/:id_usuario', UsuariosController.getUmUsuario);
-
 
 // ALTERA UM USUARIO
 router.patch('/', UsuariosController.patchAtualizaUsuario);
@@ -22,6 +18,6 @@ router.patch('/', UsuariosController.patchAtualizaUsuario);
 router.delete('/', UsuariosController.deleteUmUsuario);
 
 //Verifica Login
-router.post('/login', UsuariosController.postVerificaLogin);
+//router.post('/login', UsuariosController.postVerificaLogin);
 
 module.exports = router;

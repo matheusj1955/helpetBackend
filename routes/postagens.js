@@ -50,8 +50,8 @@ router.patch('/', upload.single('postagem_imagem'), login, PostagensController.p
 // DELETA UMA POSTAGEM
 router.delete('/',  PostagensController.deleteUmaPostagem);
 
-router.post('/:id_postagem/imagem', upload.single('postagem_imagem'), PostagensController.postImagem);
-
-router.get('/:id_postagem/imagens', PostagensController.getImagens)
+//router.post('/:id_postagem/imagem', upload.single('postagem_imagem'), PostagensController.postImagem);
+//
+//router.get('/:id_postagem/imagens', PostagensController.getImagens)
 
 module.exports = router;

@@ -4,8 +4,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
 const rotaUsuarios = require('./routes/usuarios.js');
-const rotaPostagens = require('./routes/postagens.js');
-const rotaImagens = require('./routes/imagens.js');
+//const rotaPostagens = require('./routes/postagens.js');
+//const rotaImagens = require('./routes/imagens.js');
 
 
 //informações de cabeçalio
@@ -31,8 +31,8 @@ app.use(bodyParser.json());// tipo de entrada json no body
 
 
 app.use('/usuarios', rotaUsuarios);
-app.use('/postagens', rotaPostagens);
-app.use('/imagens', rotaImagens);
+//app.use('/postagens', rotaPostagens);
+//app.use('/imagens', rotaImagens);
 
 app.use((req, res, next) =>{
     const erro = new Error('Não encontrado');
