@@ -13,6 +13,7 @@ exports.getUsuarios = (req, res, next) => {
 						return {
 							id_usuario: usu.id_usuario,
 							nome: usu.nome,
+							tel: usu.tel,
 							email: usu.email,
 								request: {
 									tipo: 'GET',
@@ -42,6 +43,7 @@ exports.postCriaUsuario = async (req, res, next) => {
 					criandoUsuario: {
 							id_usuario: result.id_usuario,
 							nome: req.body.nome,
+							tel: req.body.tel,
 							email: req.body.email,
 								request: {
 									tipo: 'GET',
@@ -73,6 +75,7 @@ exports.getUmUsuario = async (req, res, next)=> {
 					usuario:{
 						id_usuario: result[0].id_usuario,
 						nome: result[0].nome,
+						tel: result[0].tel,
 						email: result[0].email,
 							request: {
 								tipo: 'GET',
@@ -89,61 +92,55 @@ exports.getUmUsuario = async (req, res, next)=> {
 
 
 exports.patchAtualizaUsuario = async (req, res, next) => {
-//
-//    try {
-//        const query = ` UPDATE usuarios
-//                           SET nome         = ?,
-//                               tel          = ?,
-//                               email        = ?,
-//                         WHERE id_usuario    = ?`;
-//        await mysql.execute(query, [
-//            req.body.nome,
-//            req.body.tel,
-//            req.body.email,
-//            req.params.id_usuario
-//        ]);
-//        const response = {
-//            message: 'usuario atualizado com sucesso',
-//            atualizandoUsuario: {
-//                id_usuario: req.params.id_usuario,
-//                nome: req.body.nome,
-//                email: req.body.email,
-//                request: {
-//                    type: 'GET',
-//                    description: 'Retorna os detalhes de um usuario',
-//                    url: process.env.URL_API + 'usuarios/' + req.params.id_usuario
-//                }
-//            }
-//        }
-//        return res.status(202).send(response);
-//    } catch (error) {
-//        return res.status(500).send({ error: error });
-//    }
+mysql.getConnection((error,conn) => {
+		if(error){ return res.status(500).send({ error: error }) }
+		conn.query(
+			'UPDATE usuarios SET nome = ?, tel = ?, email = ? WHERE id_usuario = ?;',
+			[req.body.nome, req.body.tel, req.body.email, req.body.id_usuario],
+			(error, result, fields) => {
+				if(error){ return res.status(500).send({ error: error }) }
+					const response = {
+					usuarioAtualizado:{
+						id_usuario: req.body.id_usuario,
+						nome: req.body.nome,
+						tel: req.body.tel,
+						email: req.body.email,
+							request: {
+								tipo: 'GET',
+								descricao: 'retorna todos os usuarios',
+								url: 'http://localhost:3000/usuarios' + req.body.id_usuario
+                             	}
+                            }
+                        }
+                return res.status(201).send(response);
+            }
+        )
+    });
 };
 
 exports.deleteUmUsuario = async (req, res, next) => {
-//    try {
-//        const query = `DELETE FROM usuarios WHERE id_usuario = ?`;
-//        await mysql.execute(query, [req.params.id_usuario]);
-//
-//        const response = {
-//            message: 'usuario removida com sucesso',
-//            request: {
-//                type: 'POST',
-//                description: 'Insere um usuario',
-//                url: process.env.URL_API + 'usuarios',
-//                body: {
-//                    nome: 'String',
-//                    email: 'String'
-//                }
-//            }
-//        }
-//        return res.status(202).send(response);
-//
-//    } catch (error) {
-//        return res.status(500).send({ error: error });
-//    }
-};
+	mysql.getConnection((error,conn) => {
+		if(error){ return res.status(500).send({ error: error }) }
+		conn.query(
+		'DELETE FROM usuarios WHERE id_usuario = ?',
+		[req.body.id_usuario],
+			(error, result, fields) => {
+			    conn.release();
+				if(error){ return res.status(500).send({ error: error }) }
+				const response = {
+					mensagem: 'Usuário removido com sucesso',
+						request: {
+							tipo: 'POST',
+							descricao: 'insere um usuário',
+							url: 'http://localhost:3000/usuarios'
+
+                            }
+                    }
+                return res.status(201).send(response);
+            }
+        )
+    });
+}
 
 //exports.postImagem = async (req, res, next) => {
 //    try {
