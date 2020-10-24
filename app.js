@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
 const rotaUsuarios = require('./routes/usuarios.js');
-//const rotaPostagens = require('./routes/postagens.js');
+const rotaPostagens = require('./routes/postagens.js');
 //const rotaImagens = require('./routes/imagens.js');
 
 
@@ -31,7 +31,7 @@ app.use(bodyParser.json());// tipo de entrada json no body
 
 
 app.use('/usuarios', rotaUsuarios);
-//app.use('/postagens', rotaPostagens);
+app.use('/postagens', rotaPostagens);
 //app.use('/imagens', rotaImagens);
 
 app.use((req, res, next) =>{

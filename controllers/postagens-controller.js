@@ -1,56 +1,76 @@
-const mysql = require('../mysql');
+const mysql = require('../mysql').pool;
 
-exports.getPostagens = async (req, res, next) => {
-//    try {
-//        const result = await mysql.execute("SELECT * FROM postagens;")
-//        const response = {
-//            postagens: result.map(posts => {
-//                return {
-//                    postagemId: posts.postagemId,
-//                    titulo: posts.titulo,
-//                    descricao: posts.descricao,
-//                    postagemImagem: posts.postagemImagem,
-//                    request: {
-//                        type: 'GET',
-//                        description: 'Retorna os detalhes de uma postagem específico',
-//                        url: process.env.URL_API + 'postagens/' + posts.postagemId
-//                    }
-//                }
-//            })
-//        }
-//        return res.status(200).send(response);
-//    } catch (error) {
-//        return res.status(500).send({ error: error });
-//    }
+exports.getPostagens =  (req, res, next) => {
+	mysql.getConnection((error,conn) => {
+		if(error){ return res.status(500).send({ error: error }) }
+		conn.query(
+		'SELECT * FROM helpet.postagens;',
+			(error, result, fields) => {
+			    conn.release();
+				if(error){ return res.status(500).send({ error: error }) }
+				const response = {
+					postagens: result.map(posts => {
+						return {
+							id_postagem: posts.id_postagem,
+							titulo: posts.titulo,
+							descricao: posts.descricao,
+							usuario: {
+							    id_usuario: posts.id_usuario,
+							},
+								request: {
+									tipo: 'GET',
+									descricao: 'retorna todos os usuarios',
+									url: 'http://localhost:3000/usuarios'
+                                }
+                            }
+                        })
+                    }
+                return res.status(201).send(response);
+            }
+        )
+    });
 };
 
 exports.postPostagens = async (req, res, next) => {
-//    try {
-//        const query = 'INSERT INTO postagens (titulo, descricao, imagemPostagem) VALUES (?,?,?)';
-//        const result = await mysql.execute(query, [
-//            req.body.titulo,
-//            req.body.descricao,
-//            req.file.path
-//        ]);
-//
-//        const response = {
-//            message: 'Postagem criada com sucesso',
-//            criandoPostagem: {
-//                postagemId: result.insertId,
-//                titulo: req.body.titulo,
-//                descricao: req.body.descricao,
-//                imagemPostagem: req.file.path,
-//                request: {
-//                    type: 'GET',
-//                    description: 'Retorna todas as postagens',
-//                    url: process.env.URL_API + 'postagens'
-//                }
-//            }
-//        }
-//        return res.status(201).send(response);
-//    } catch (error) {
-//        return res.status(500).send({ error: error });
-//    }
+    console.log(req.file);
+	mysql.getConnection((error,conn) => {
+		if(error){ return res.status(500).send({ error: error }) }
+		conn.query(
+		'SELECT * FROM helpet.postagens WHERE id_postagem = ?',
+			[req.body.id_postagem],
+			(error, result, fields) => {
+				if(error){ return res.status(500).send({ error: error }) }
+//			    	if(result.length == 0){
+//					return res.status(404).send({
+//						mensagem: 'Produto não encontrado'
+//					})
+//				}
+				conn.query(
+ 					'INSERT INTO postagens (id_usuario, titulo, descricao, postagem_imagem) VALUES (?,?,?,?)',
+            				[req.body.id_usuario, req.body.titulo, req.body.descricao, req.file.path],
+                			(error, result, field) => {
+                   				conn.release();
+                    				if(error){ return res.status(500).send({ error: error }) }
+                    				const response = {
+                      					mensagem: 'Postagem criada com sucesso',
+                        				criandoPostagem: {
+                                				id_postagem: result.id_postagem,
+                                				id_usuario: req.body.id_usuario,
+                                				titulo: req.body.titulo,
+                                				descricao: req.body.descricao,
+                                				postagem_imagem: req.file.path,
+                                   				request: {
+                                        				tipo: 'GET',
+                                        				descricao: 'retorna todos os usuarios',
+                                        				url: 'http://localhost:3000/usuarios'
+                                   				}
+                                			}
+                        			}
+                    				return res.status(201).send(response);
+                			}
+            			)
+			})
+        });
 };
 
 exports.patchAtulizaPostagem = async (req, res, next)=> {
