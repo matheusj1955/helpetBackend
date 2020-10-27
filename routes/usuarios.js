@@ -7,7 +7,7 @@ const UsuariosController = require('../controllers/usuarios-controller')
 router.get('/', UsuariosController.getUsuarios);
 
 // INSERE UM NOVO USUARIO
-router.post('/cadastro', UsuariosController.postCriaUsuario);
+router.post('/', UsuariosController.postCriaUsuario);
 // RETORNA OS DADOS DE UM USUARIO
 router.get('/:id_usuario', UsuariosController.getUmUsuario);
 
