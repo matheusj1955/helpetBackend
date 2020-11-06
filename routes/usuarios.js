@@ -18,6 +18,6 @@ router.patch('/', UsuariosController.patchAtualizaUsuario);
 router.delete('/', UsuariosController.deleteUmUsuario);
 
 //Verifica Login
-//router.post('/login', UsuariosController.postVerificaLogin);
+router.post('/login', UsuariosController.postVerificaLogin);
 
 module.exports = router;

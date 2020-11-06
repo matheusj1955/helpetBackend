@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-//const login = require('../middleware/login');
+const login = require('../middleware/login');
 // TEM Q POR PARADA DE LOGIN
 
 const PostagensController = require('../controllers/postagens-controller')
@@ -39,7 +39,7 @@ const upload = multer({
 router.get('/', PostagensController.getPostagens);
 
 //// CRIE UMA NOVA POSTAGEM -- upload.single('postagem_imagem') - , login,
-router.post('/',upload.single('postagem_imagem'), PostagensController.postPostagens);
+router.post('/', upload.single('postagem_imagem'), login.obrigatorio, PostagensController.postPostagens);
 //
 //// RETORNA OS DADOS DE UMA POSTAGEM
 //router.get('/:id_postagem', PostagensController.getUmaPostagem);

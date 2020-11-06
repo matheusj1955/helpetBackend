@@ -1,5 +1,6 @@
 const mysql = require('../mysql').pool;
 
+
 exports.getPostagens =  (req, res, next) => {
 	mysql.getConnection((error,conn) => {
 		if(error){ return res.status(500).send({ error: error }) }
@@ -46,19 +47,21 @@ exports.postPostagens = async (req, res, next) => {
 //					})
 //				}
 				conn.query(
- 					'INSERT INTO postagens (id_usuario, titulo, descricao, postagem_imagem) VALUES (?,?,?,?)',
-            				[req.body.id_usuario, req.body.titulo, req.body.descricao, req.file.path],
+ 					'INSERT INTO postagens (titulo, descricao) VALUES (?,?)',
+//            				[req.body.id_usuario, req.body.titulo, req.body.descricao, req.file.path],
+            				[req.body.titulo, req.body.descricao],
+
                 			(error, result, field) => {
                    				conn.release();
                     				if(error){ return res.status(500).send({ error: error }) }
                     				const response = {
                       					mensagem: 'Postagem criada com sucesso',
                         				criandoPostagem: {
-                                				id_postagem: result.id_postagem,
-                                				id_usuario: req.body.id_usuario,
+//                                				id_postagem: result.id_postagem,
+//                                				id_usuario: req.body.id_usuario,
                                 				titulo: req.body.titulo,
                                 				descricao: req.body.descricao,
-                                				postagem_imagem: req.file.path,
+//                                				postagem_imagem: req.file.path,
                                    				request: {
                                         				tipo: 'GET',
                                         				descricao: 'retorna todos os usuarios',
